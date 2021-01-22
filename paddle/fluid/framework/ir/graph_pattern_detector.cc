@@ -2200,7 +2200,7 @@ PDNode *patterns::Bfloat16Placement::operator()(
   std::unordered_set<std::string> supported_op_types =
       std::unordered_set<std::string>(
           {"concat", "conv2d", "elementwise_add", "elementwise_mul", "fc",
-           "fusion_gru", "gelu", "layer_norm", "matmul", "pool2d", "reshape2",
+           "fusion_gru", "fusion_lstm", "gelu", "layer_norm", "matmul", "pool2d", "reshape2",
            "softmax", "sum", "transpose2"});
   if (!bfloat16_enabled_op_types.empty()) {
     supported_op_types = bfloat16_enabled_op_types;
