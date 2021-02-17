@@ -22,8 +22,8 @@ from paddle.fluid.tests.unittests.op_test import OpTest, convert_float_to_uint16
 from paddle.fluid.tests.unittests.test_fusion_lstm_op import TestFusionLSTMOp, fc, ACTIVATION, fusion_lstm
 
 
-#@unittest.skipIf(not core.supports_bfloat16(),
-#                 "place does not support BF16 evaluation")
+@unittest.skipIf(not core.supports_bfloat16(),
+                 "place does not support BF16 evaluation")
 class TestFusionLSTMBF16ONEDNNOp(OpTest):
     def set_confs(self):
         self.mkldnn_data_type = False
@@ -59,8 +59,8 @@ class TestFusionLSTMBF16ONEDNNOp(OpTest):
         x_bf16 = convert_float_to_uint16(x)
 
         if self.has_initial_state:
-            h0 = np.random.normal(size=(bs, self.D)).astype('float32')
-            c0 = np.random.normal(size=(bs, self.D)).astype('float32')
+            h0 = np.random.rand(bs, self.D).astype('float32')
+            c0 = np.random.rand(bs, self.D).astype('float32')
         else:
             h0 = np.zeros((bs, self.D)).astype('float32')
             c0 = np.zeros((bs, self.D)).astype('float32')
@@ -69,9 +69,9 @@ class TestFusionLSTMBF16ONEDNNOp(OpTest):
         h0_bf16 = convert_float_to_uint16(h0)
 
         if self.use_peepholes:
-            b = np.random.normal(size=(1, 7 * self.D)).astype('float32')
+            b = np.random.rand(1, 7 * self.D).astype('float32')
         else:
-            b = np.random.normal(size=(1, 4 * self.D)).astype('float32')
+            b = np.random.rand(1, 4 * self.D).astype('float32')
         w_b = np.copy(b[:, 0:4 * self.D])
         w_c = b[:, 4 * self.D:] if self.use_peepholes else None
 
@@ -81,7 +81,7 @@ class TestFusionLSTMBF16ONEDNNOp(OpTest):
         wx_bf16 = convert_float_to_uint16(wx)
         wh_bf16 = convert_float_to_uint16(wh)
 
-        bx = np.random.normal(size=(1, 4 * self.D)).astype('float32')
+        bx = np.random.rand(1, 4 * self.D).astype('float32')
         b[0, 0:4 * self.D] += bx[0, :]
 
 
@@ -91,13 +91,11 @@ class TestFusionLSTMBF16ONEDNNOp(OpTest):
 
         hidden_bf16 = convert_float_to_uint16(hidden)
 
-        #print("\n\n", x, "\n\n")
-        #print("\n\n", x_bf16, "\n\n")
 
         self.inputs = {
             'X': (x_bf16, self.lod),
-            'WeightX': wx,
-            'WeightH': wh,
+            'WeightX': wx_bf16,
+            'WeightH': wh_bf16,
             'Bias': b
         }
 
@@ -131,11 +129,9 @@ class TestFusionLSTMBF16ONEDNNInitializedStateOp(TestFusionLSTMBF16ONEDNNOp):
         self.has_initial_state = True
 
 
-class TestFusionLSTMBF16ONEDNNWithoutBiasOp(TestFusionLSTMBF16ONEDNNOp):
+class TestFusionLSTMBF16ONEDNNReverseOp(TestFusionLSTMBF16ONEDNNOp):
     def set_confs(self):
-        self.with_bias = False
         self.is_reverse = True
-        self.force_fp32_output = True
 
 
 if __name__ == "__main__":
